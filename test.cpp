@@ -1,14 +1,17 @@
-#include "Includer.h"
+#include "Logger.h"
+#include "Connector.h"
+#include "Calculator.h"
+#include "Communicate.h"
+#include <UnitTest++/UnitTest++.h>
 #include <limits>
 #include <chrono>
 #include <thread>
-#include <UnitTest++/UnitTest++.h>
 #include <boost/numeric/conversion/cast.hpp>
-#define max_pos 32767 // uint16_t max value for testing overflow logic
-#define min_pos 0     // assuming uint16_t min value for logic
+
+#define max_pos 32767
+#define min_pos 0
 #define _UNITTEST_ 1
 
-// Connector_to_base is now just Connector
 
 SUITE(Connector_test) {
     TEST(newl_in_path) {
@@ -18,7 +21,7 @@ SUITE(Connector_test) {
     }
     TEST(incorrect_path) {
         Connector Con;
-        std::string path = "%$#(*";
+        std::string path = "1111";
         CHECK_THROW(Con.connect(path), crit_err);
     }
     TEST(void_path) {
@@ -28,7 +31,7 @@ SUITE(Connector_test) {
     }
     TEST(wrong_path) {
         Connector Con;
-        std::string path = "/gendalf/auth.txt";
+        std::string path = "/sudo/auth.txt";
         CHECK_THROW(Con.connect(path), crit_err);
     }
     TEST(right_path) {
@@ -43,21 +46,16 @@ SUITE(Connector_test) {
         std::string path = "test_files/auth.txt";
         Con.connect(path);
         auto data = Con.get_data();
-        if (data[check_login] != check_pass || data.find(check_login) == data.end()) {
-            CHECK(false);
-        } else {
-            CHECK(true);
-        }
+        CHECK(data.find(check_login) != data.end() && data[check_login] == check_pass);
     }
 }
 
-// Calculator uses uint16_t multiplication
 
 SUITE(Calculator_test) {
     TEST(positiv_overflow) {
-        std::vector<uint16_t> v = {max_pos, 2}; // Expect overflow handling
+        std::vector<uint16_t> v = {32767, 2}; 
         Calculator c(v);
-        CHECK_EQUAL(max_pos, c.send_res());
+        CHECK_EQUAL(32767, c.send_res());
     }
     TEST(negative_number_1) {
         std::vector<uint16_t> v = {10, 5};
@@ -76,7 +74,7 @@ SUITE(Calculator_test) {
 SUITE(Logger_test) {
     TEST(wrong_path) {
         Logger l;
-        std::string path = "false/way/to/file.txt";
+        std::string path = "sv1cha/jojik/to/log.txt";
         CHECK_THROW(l.set_path(path), crit_err);
     }
     TEST(void_path) {
@@ -86,7 +84,7 @@ SUITE(Logger_test) {
     }
     TEST(correct_path) {
         Logger l;
-        std::string path = "test_files/free.txt";
+        std::string path = "test_files/log.txt";
         CHECK_EQUAL(0, l.set_path(path));
     }
     TEST(newl_in_path_log) {
@@ -96,7 +94,6 @@ SUITE(Logger_test) {
     }
 }
 
-// Client_Communicate with updated salt and SHA256
 
 SUITE(Client_Communicate) {
     TEST(salt_generator) {
@@ -104,27 +101,22 @@ SUITE(Client_Communicate) {
         std::string salt_one = com.generate_salt();
         std::this_thread::sleep_for(std::chrono::seconds(1));
         std::string salt_two = com.generate_salt();
-        if (salt_one == salt_two) {
-            CHECK(false);
-        } else {
-            CHECK(true);
-        }
+        CHECK(salt_one != salt_two);
     }
     TEST(salt_len) {
         Communicate com;
         std::string salt = com.generate_salt();
-        CHECK_EQUAL(salt.length(), 16); // Adjust according to salt generation logic
+        CHECK_EQUAL(16, salt.length());
     }
     TEST(sha256_gen) {
-        std::string hash_check = "6f4b6612125fb3a0daecd2799dfd6c9c299424fd920f9b308110a2c1fbd8f443"; // Example SHA256 hash
+        std::string hash_check = "4B433CF519B97321B9341690085EF206439AF0C8A98F606B7C06C3B7F189ED40";
         Communicate com;
-        std::string SALT = "3e74235568ba8f1e";
+        std::string SALT = "F9E622969DCEDABE";
         std::string hash = com.sha256(SALT);
-        CHECK_EQUAL(hash, hash_check);
+        CHECK_EQUAL(hash_check, hash);
     }
 }
 
-// Test runner
 int main(int argc, char **argv) {
     return UnitTest::RunAllTests();
 }

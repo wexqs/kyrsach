@@ -2,8 +2,7 @@
 #include <vector>
 #include <cstdint>
 
-class Calculator
-{
+class Calculator {
     uint16_t results;
 public:
     Calculator(std::vector<uint16_t> input_data);

@@ -67,6 +67,16 @@ SUITE(Calculator_test) {
         Calculator c(v);
         CHECK_EQUAL(100, c.send_res());
     }
+	TEST(single_value) {
+        std::vector<uint16_t> v = {5}; 
+        Calculator c(v);
+        CHECK_EQUAL(5, c.send_res());
+    }
+	TEST(million_ones) {
+        std::vector<uint16_t> v(1000000, 1);
+        Calculator c(v);
+        CHECK_EQUAL(1, c.send_res());
+    }
 }
 
 // Logger tests
@@ -109,9 +119,9 @@ SUITE(Client_Communicate) {
         CHECK_EQUAL(16, salt.length());
     }
     TEST(sha256_gen) {
-        std::string hash_check = "4B433CF519B97321B9341690085EF206439AF0C8A98F606B7C06C3B7F189ED40";
+        std::string hash_check = "4AD020C61365451DC2C8CCD88F5063ABBBFE796210A9D6090BCECBF434F078B4";
         Communicate com;
-        std::string SALT = "F9E622969DCEDABE";
+        std::string SALT = "2A2B91EEBB29DC1C";
         std::string hash = com.sha256(SALT);
         CHECK_EQUAL(hash_check, hash);
     }

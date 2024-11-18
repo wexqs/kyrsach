@@ -125,6 +125,15 @@ SUITE(Client_Communicate) {
         std::string hash = com.sha256(SALT);
         CHECK_EQUAL(hash_check, hash);
     }
+	TEST(hash_salt_password) {
+        Communicate com;
+        std::string salt = "2A2B91EEBB29DC1C";
+        std::string password = "P@ssW0rd";
+        std::string expected_hash = "8DE7D7E8F5721869813573DD3FF6F0BB9F9B028A09A1F8F07FA25307EA3EF02F";
+        std::string combined = salt + password;
+        std::string hash = com.sha256(combined);
+        CHECK_EQUAL(expected_hash, hash);
+    }
 }
 
 int main(int argc, char **argv) {
